@@ -556,7 +556,7 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-      import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+      import { getDatabase, ref, get, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
       (() => {
         const HEART = "heart";
@@ -774,7 +774,21 @@
           }
           try {
             await connectFirebase();
+            const roomSnapshot = await get(roomRef(code));
+            const existingRoom = roomSnapshot.val();
+            if (!roomSnapshot.exists() || !existingRoom || !existingRoom.host) {
+              showError("That room isn't available. Check the code, or ask your friend to create a new room.");
+              return;
+            }
+            let firstTransactionAttempt = true;
             const joined = await runTransaction(roomRef(code), data => {
+              if (!data && firstTransactionAttempt) {
+                firstTransactionAttempt = false;
+                if (existingRoom.guest && existingRoom.guest !== authUser.uid &&
+                    existingRoom.host !== authUser.uid) return;
+                return { ...existingRoom, guest: existingRoom.guest || authUser.uid };
+              }
+              firstTransactionAttempt = false;
               if (!data || !data.host) return;
               if (data.host === authUser.uid || data.guest === authUser.uid) return data;
               if (data.guest) return;
