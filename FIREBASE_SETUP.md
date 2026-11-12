@@ -1,49 +1,40 @@
-# Hearts & Crosses: online room setup
+# Hearts & Crosses online rooms
 
-The game uses Firebase Realtime Database for live moves and Firebase anonymous
-authentication so players can join without creating accounts.
+The GitHub Pages game is connected to the Firebase project
+`hearts-and-crosses`. Realtime Database stores room state; Firebase Anonymous
+Authentication assigns each player a guest identity so rooms can be restricted
+to their two participants. Players do not need accounts.
 
-## 1. Create and configure a Firebase project
+## Current setup
 
-1. Create a project at [Firebase Console](https://console.firebase.google.com/).
-2. In **Build → Realtime Database**, create a database and copy its database URL.
-3. In **Build → Authentication → Sign-in method**, enable **Anonymous**.
-4. In **Project settings → General**, register a Web app and copy its Firebase
-   configuration.
-5. In `index.html`, replace the placeholder values in `firebaseConfig` with the
-   Web app's `apiKey`, `authDomain`, `projectId`, and `appId`, plus the exact
-   Realtime Database URL shown in the console.
+- Realtime Database: Singapore (`asia-southeast1`), on the Spark no-cost plan.
+- Anonymous sign-in: enabled.
+- The database starts locked and only permits signed-in users to read waiting
+  rooms and participants to access their own rooms. The room host and guest
+  identities cannot be replaced after creation.
+- The GitHub Pages domain `joyasiwach99-sys.github.io` is authorized.
+- Google Analytics and Gemini in Firebase were left disabled.
 
-The web app config is intended to be public. The database rules below limit room
-access to authenticated players; do not put private credentials in `index.html`.
+## Share a room
 
-## 2. Publish the database rules and website
+Open [Hearts & Crosses](https://joyasiwach99-sys.github.io/hearts-and-crosses/),
+choose **Create a room**, then share the room code or copy the invite link from
+the room badge. Your friend opens the same site, enters the code, and joins.
+The host plays Hearts; the guest plays Crosses. Either player can start a new
+round.
 
-Install the Firebase command-line tools, sign in, and select your project:
+## Updating the site
 
-```sh
-npm install -g firebase-tools
-firebase login
-firebase use --add
-```
+The public source is in the
+[GitHub repository](https://github.com/joyasiwach99-sys/hearts-and-crosses).
+Changes committed to `main` are published automatically by GitHub Pages. Keep
+the Firebase web-app config in `index.html` aligned with the Firebase project;
+these web-app settings are public client configuration, not private server
+credentials.
 
-Choose the Firebase project you created, then deploy the rules and site from
-this folder:
+The database rules are also checked in as `database.rules.json`. If they need
+updating, publish them in Firebase Console under **Realtime Database → Rules**.
+Do not switch the database to test mode or open public read/write access.
 
-```sh
-firebase deploy --only database,hosting
-```
-
-Firebase Hosting will print a public `https://…web.app` URL. Open it, choose
-**Create a room**, and share the six-character room code or the invite link.
-Your friend can open the link or enter the code with **Join**. The room code is
-also a button in the game header; tap it to copy the invite link.
-
-## Notes
-
-- The first person in a room plays Hearts; the second plays Crosses.
-- Either player can start a new round. The score stays with the room.
-- Rooms are not automatically deleted. Old room records can be removed from
-  Realtime Database in the Firebase console.
-- These rules keep reads and writes scoped to authenticated room participants;
-  they are intended for a casual game, not for storing sensitive data.
+Rooms are not automatically deleted. Old room records can be removed from
+Realtime Database in the Firebase console.

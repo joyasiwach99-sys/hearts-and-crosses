@@ -570,11 +570,11 @@
         const heartIcon = '<svg class="mark heart" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 86 15.7 53.1C-5 33.2 8.6 8 29.8 8c9.7 0 16.8 5.2 20.2 12.5C53.4 13.2 60.5 8 70.2 8 91.4 8 105 33.2 84.3 53.1L50 86Z"/></svg>';
         const crossIcon = '<svg class="mark cross" viewBox="0 0 100 100" aria-hidden="true"><path d="m25 25 50 50M75 25 25 75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="12"/></svg>';
         const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-          databaseURL: "https://YOUR_DATABASE_NAME-default-rtdb.firebaseio.com",
-          projectId: "YOUR_PROJECT_ID",
-          appId: "YOUR_APP_ID"
+          apiKey: "AIzaSyA3KUvZ6sor6gf_4ls2JoxjaIGcSUrfd-I",
+          authDomain: "hearts-and-crosses.firebaseapp.com",
+          databaseURL: "https://hearts-and-crosses-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "hearts-and-crosses",
+          appId: "1:665696912476:web:2ddebfb9c0c761c3401299"
         };
         const boardElement = document.querySelector("#board");
         const statusElement = document.querySelector("#status");
@@ -586,7 +586,7 @@
         const crossScoreElement = document.querySelector("#cross-score");
         const heartNameElement = document.querySelector("#heart-name");
         const crossNameElement = document.querySelector("#cross-name");
-        let board = Array(9).fill(null);
+        let board = Array(9).fill("");
         let turn = HEART;
         let roundOver = false;
         let scores = { heart: 0, cross: 0 };
@@ -608,9 +608,8 @@
         }
 
         function firebaseReady() {
-          return firebaseConfig.apiKey !== "YOUR_API_KEY" &&
-            firebaseConfig.projectId !== "YOUR_PROJECT_ID" &&
-            !firebaseConfig.databaseURL.includes("YOUR_") &&
+          return firebaseConfig.apiKey.length > 0 &&
+            firebaseConfig.projectId === "hearts-and-crosses" &&
             (firebaseConfig.databaseURL.includes("firebaseio.com") ||
               firebaseConfig.databaseURL.includes("firebasedatabase.app"));
         }
@@ -663,7 +662,7 @@
 
         function updateFromRoom(data) {
           currentRoomData = data;
-          board = Array.isArray(data.board) ? data.board : Array(9).fill(null);
+          board = Array.isArray(data.board) ? data.board : Array(9).fill("");
           turn = data.turn === CROSS ? CROSS : HEART;
           roundOver = Boolean(data.roundOver);
           winningCells = Array.isArray(data.winningCells) ? data.winningCells : [];
@@ -709,7 +708,7 @@
           try {
             const transaction = await runTransaction(roomRef(currentRoom), data => {
               if (!data || !data.guest || data.roundOver || data.turn !== currentPlayer ||
-                  !Array.isArray(data.board) || data.board[index] !== null) return;
+                  !Array.isArray(data.board) || data.board[index] !== "") return;
               const nextBoard = [...data.board];
               nextBoard[index] = currentPlayer;
               const outcome = result(nextBoard);
@@ -745,7 +744,7 @@
               const initialRoom = {
                 host: authUser.uid,
                 guest: null,
-                board: Array(9).fill(null),
+                board: Array(9).fill(""),
                 turn: HEART,
                 roundOver: false,
                 winningCells: [],
@@ -802,7 +801,7 @@
               if (!data || (data.host !== authUser.uid && data.guest !== authUser.uid)) return;
               return {
                 ...data,
-                board: Array(9).fill(null),
+                board: Array(9).fill(""),
                 turn: HEART,
                 roundOver: false,
                 winningCells: []
